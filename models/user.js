@@ -9,11 +9,20 @@ var mongoose = require('mongoose')
 /**
  * User schema
  */
+var PostSchema = new mongoose.Schema({
+  title: {type: String},
+  description: {type: String},
+  location: {type: String},
+  date: {type: Date},
+  time: {type: String}
+});
+
 var UserSchema = new mongoose.Schema({
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
     username: {type: String, required: true, index: {unique: true}},
-    password: {type: String, required: true}
+    password: {type: String, required: true},
+    networking_events: [PostSchema]
 });
 
 /**
@@ -78,13 +87,19 @@ UserSchema.statics.getAuthenticated = function (user, callback) {
 
                 // check if the password was a match
                 if (isMatch) {
+                  var user = {
+                      username: doc.username,
+                      id: doc.id,
+                      firstName: doc.firstName,
+                      lastName: doc.lastName
+                  };
 
-                    // return the jwt
-                    var token = jsonwebtoken.sign(doc, 'supersecret', {
-                        expiresInMinutes: 1440 // expires in 24 hours
-                    });
-                    return callback(null, token, doc);
-                }
+                  // return the jwt
+                  var token = jsonwebtoken.sign(user, 'supersecret', {
+                      expiresInMinutes: 1440 // expires in 24 hours
+                  });
+                  return callback(null, token, user);
+                  }
                 else {
                     return callback(new Error('Invalid username or password.'), null);
 
@@ -132,6 +147,11 @@ UserSchema.statics.Create = function (user, callback) {
             });
         }
     });
+};
+UserSchema.statics.Post = function(id, post, callback){
+  this.findByIdAndUpdate(id, {$push: {networking_events: post}}, {new: true}, function(err, posts) {
+    callback(err, posts);
+  })
 };
 
 

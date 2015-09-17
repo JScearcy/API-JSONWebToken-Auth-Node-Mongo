@@ -1,15 +1,40 @@
 extends layout
 
 block content
-    h1 Test API
+    h1 Post App
     div
-        div#content.content
-        .jumbotron
-            .container
-                p Click the "Test" button to send an Ajax request to /api/test. If you are authenticated, the data will be displayed
-                .btn-group
-                    button#test.btn.btn-primary(type="button") Test
-                    button#logout.btn.btn-primary(type="button") Logout
+      div#content.content
+        form.form-horizontal#postEvent(role='form' method='post')
+            legend
+                h1 Networking Event
+                .form-group
+                    label.control-label.col-sm-2(for="title") Title:
+                    .col-sm-10
+                        input.form-control(type='text' id="title" name="title" placeholder='Enter Event Title')
+                .form-group
+                    label.control-label.col-sm-2(for="description") Description:
+                    .col-sm-10
+                        input.form-control(type='textbox' id="description" name="description" placeholder='Description')
+                .form-group
+                    label.control-label.col-sm-2(for="location") Location:
+                    .col-sm-10
+                        input.form-control(type='text' id="location" name="location" placeholder='location')
+                .form-group
+                    label.control-label.col-sm-2(for="date") Date:
+                    .col-sm-10
+                        input.form-control(type='date' id="date" name="date" placeholder='date')
+                .form-group
+                    label.control-label.col-sm-2(for="time") Time:
+                    .col-sm-10
+                        input.form-control(type='time' id="time" name="time" placeholder='time')
+                .form-group
+                    button.btn.btn-primary(type='submit') Submit
+      .jumbotron
+          .container
+              p Click the "Post" button to post, if you are logged in.
+              .btn-group
+                  button#test.btn.btn-primary(type="button") Post
+                  button#logout.btn.btn-primary(type="button") Logout
 
     .well
         p#user
@@ -31,3 +56,15 @@ block content
                       button.btn.btn-default(type="button") Register
 
                 p#error.error
+    .posts
+    script(id="post-template" type="text/x-handlebars-template")
+      {{#each this}}
+      div(class="post")
+        ul
+          li {{title}}
+          li {{location}}
+          li {{date}}
+          li {{time}}
+          li {{description}}
+      {{/each}}
+              

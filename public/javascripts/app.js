@@ -5,6 +5,8 @@ var $user;
 var $error;
 var $content;
 var $logout;
+var $postForm;
+var $posts;
 
 $(document).ready(function () {
 
@@ -15,7 +17,9 @@ $(document).ready(function () {
     $content = $('#content');
     $logout = $('#logout');
     $user = $('#user');
-
+    $postForm = $('#postEvent');
+    $posts = $('.posts');
+    $content.hide();
     setupAjax();
 
     bindEvents();
@@ -27,8 +31,21 @@ function showUser() {
     if (localStorage.getItem('userProfile')) {
         var user = JSON.parse(localStorage.getItem('userProfile'));
         $loginForm.hide();
+        $content.show();
         $user.text('You are currently logged in as ' + user.username);
-        $content.text('');
+        $.ajax({
+          method: 'get',
+          url: '/api/oldposts'
+        }).done(function(res){
+          console.log(res);
+          var source   = $("#post-template").html();
+          var template = Handlebars.compile(source);
+          $posts.append(template(res));
+          setupAjax();
+        }).fail(function(err){
+          console.log(err);
+        }).always(function(data){
+        })
     }
 }
 
@@ -42,7 +59,7 @@ function hideUser() {
     }
     $loginForm.show();
     $user.text('');
-    $content.text('');
+    $content.hide();
 }
 
 function setupAjax() {
@@ -60,17 +77,19 @@ function bindEvents() {
 
     // set up the API test
     $testDiv.on('click', function (e) {
+      var data = ''
         $.ajax('/api/test', {
-            method: 'get'
+            method: 'post',
+            data: data
         }).done(function (data, textStatus, jqXHR) {
 
             // on a success, put the secret into content area
-            $content.text(data);
+            //$content.text(data);
 
         }).fail(function (jqXHR, textStatus, errorThrown) {
 
             // on a failure, put that in the content area
-            $content.text(jqXHR.responseText);
+            // $content.text(jqXHR.responseText);
 
         }).always(function () {
             console.log("complete");
@@ -100,6 +119,7 @@ function bindEvents() {
             $loginForm[0].reset();
 
             showUser();
+            $content.show();
             setupAjax();
 
         }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -108,6 +128,28 @@ function bindEvents() {
             console.log("complete");
         });
     });
+
+    $postForm.on('submit', function(e){
+      e.preventDefault();
+      var rawdata = $(this).serializeArray();
+      var data = {
+        title: rawdata[0].value,
+        description: rawdata[1].value,
+        location: rawdata[2].value,
+        date: rawdata[3].value,
+        time: rawdata[4].value
+      }
+      $postForm.trigger("reset");
+      $.ajax({
+        method: 'post',
+        url: '/api/newpost',
+        data: data
+      }).done(function(res){
+        var source   = $("#post-template").html();
+        var template = Handlebars.compile(source);
+        $posts.append(template(res));
+      })
+    })
 
     // set up register
     $registerForm.on('submit', function (e) {

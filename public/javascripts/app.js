@@ -37,7 +37,6 @@ function showUser() {
           method: 'get',
           url: '/api/oldposts'
         }).done(function(res){
-          console.log(res);
           var source   = $("#post-template").html();
           var template = Handlebars.compile(source);
           $posts.append(template(res));

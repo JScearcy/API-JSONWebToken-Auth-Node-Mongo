@@ -5,7 +5,7 @@ var User = require('../../models/user');
 /* GET home page. */
 
 router.post('/', function(req, res, next) {
-    User.Post(req.user._id, req.body, function(err, posts){
+    User.Post(req.user.id, req.body, function(err, posts){
       res.json(posts.networking_events);
     })
 });

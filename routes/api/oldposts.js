@@ -3,8 +3,12 @@ var router = express.Router();
 var User = require('../../models/user');
 
 router.get('/', function(req, res, next){
-  User.find({_id: req.user._id}, function(err, posts) {
-    res.json(posts[0].networking_events);
+  User.find({_id: req.user.id}, function(err, posts) {
+    if(posts.length > 0){
+      res.json(posts[0].networking_events);
+    } else {
+      res.sendStatus(200);
+    }
   })
 });
 
